@@ -1,10 +1,12 @@
+import 'dart:developer';
 import 'dart:isolate';
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'package:flutter_notification_listener/flutter_notification_listener.dart';
+import 'package:http/http.dart' as http;
+import 'package:device_info_plus/device_info_plus.dart';
+import 'dart:convert';
 
 void main() {
   runApp(MyApp());
@@ -63,7 +65,6 @@ class _NotificationsLogState extends State<NotificationsLog> {
     IsolateNameServer.removePortNameMapping("_listener_");
     IsolateNameServer.registerPortWithName(port.sendPort, "_listener_");
     port.listen((message) => onData(message));
-
     // don't use the default receivePort
     // NotificationsListener.receivePort.listen((evt) => onData(evt));
 
@@ -75,12 +76,37 @@ class _NotificationsLogState extends State<NotificationsLog> {
     });
   }
 
-  void onData(NotificationEvent event) {
+  void onData(NotificationEvent event) async {
     setState(() {
       _log.add(event);
     });
-
     print(event.toString());
+
+    try {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      //debugPrint('Running on ${androidInfo.model}');
+
+      Map<String, dynamic> body = {
+        'deviceID': androidInfo.model,
+        'time': event.createAt.toString().substring(0, 19),
+        'sender': event.title,
+        'message': event.text
+      };
+      String jsonBody = json.encode(body);
+
+      debugPrint('This is body : ${jsonBody}');
+
+      //await http.post(Uri.parse('http://139.59.126.33:9999/transaction/sms'),
+      await http.post(Uri.parse('http://192.168.0.192:9999/transaction/line'),
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          encoding: Encoding.getByName('utf-8'),
+          body: jsonBody);
+    } catch (e) {
+      print(e);
+    }
   }
 
   void startListening() async {
@@ -129,7 +155,7 @@ class _NotificationsLogState extends State<NotificationsLog> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Listener Example'),
+        title: Text('LINE Message Retriever.'),
         actions: [
           IconButton(
               onPressed: () {
@@ -155,40 +181,42 @@ class _NotificationsLogState extends State<NotificationsLog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(entry.title ?? "<<no title>>"),
-                          Text(entry.text ?? "<<no text>>"),
-                          Row(
-                            children: entry.actions.map((act) {
-                              return TextButton(
-                                  onPressed: () {
-                                    // semantic is 1 means reply quick
-                                    if (act.semantic == 1) {
-                                      Map<String, dynamic> map = {};
-                                      act.inputs.forEach((e) {
-                                        print(
-                                            "set inputs: ${e.label}<${e.resultKey}>");
-                                        map[e.resultKey] = "Auto reply from me";
-                                      });
-                                      act.postInputs(map);
-                                    } else {
-                                      // just tap
-                                      act.tap();
-                                    }
-                                  },
-                                  child: Text(act.title));
-                            }).toList()
-                              ..add(TextButton(
-                                  child: Text("Full"),
-                                  onPressed: () async {
-                                    try {
-                                      var data = await entry.getFull();
-                                      print("full notifaction: $data");
-                                    } catch (e) {
-                                      print(e);
-                                    }
-                                  })),
-                          ),
-                          Text(entry.createAt.toString().substring(0, 19)),
+                          Text("Time : " +
+                              entry.createAt.toString().substring(0, 19)),
+                          Text("Sender : " + entry.title ?? "<<no title>>"),
+                          Text("Message : " + entry.text ?? "<<no text>>"),
+                          Text("------------")
+                          // Row(
+                          //     children: entry.actions.map((act) {
+                          //   return TextButton(
+                          //       onPressed: () {
+                          //         // semantic is 1 means reply quick
+                          //         if (act.semantic == 1) {
+                          //           Map<String, dynamic> map = {};
+                          //           act.inputs.forEach((e) {
+                          //             print(
+                          //                 "set inputs: ${e.label}<${e.resultKey}>");
+                          //             map[e.resultKey] = "Auto reply from me";
+                          //           });
+                          //           act.postInputs(map);
+                          //         } else {
+                          //           // just tap
+                          //           act.tap();
+                          //         }
+                          //       },
+                          //       child: Text(act.title));
+                          // }).toList()
+                          //     // ..add(TextButton(
+                          //     //     child: Text("Full"),
+                          //     //     onPressed: () async {
+                          //     //       try {
+                          //     //         var data = await entry.getFull();
+                          //     //         print("full notifaction: $data");
+                          //     //       } catch (e) {
+                          //     //         print(e);
+                          //     //       }
+                          //     //     })),
+                          //     ),
                         ],
                       ),
                     ));
