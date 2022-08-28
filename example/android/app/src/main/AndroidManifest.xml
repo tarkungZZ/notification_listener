@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
    <application
-        android:label="flutter_notification_listener_example"
+        android:label="LINE Message Retriever 01"
         android:icon="@mipmap/ic_launcher"
        android:allowBackup="true">
         <activity

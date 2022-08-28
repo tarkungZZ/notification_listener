@@ -88,17 +88,15 @@ class _NotificationsLogState extends State<NotificationsLog> {
       //debugPrint('Running on ${androidInfo.model}');
 
       Map<String, dynamic> body = {
+        'bid': '1',
         'deviceID': androidInfo.model,
-        'time': event.createAt.toString().substring(0, 19),
-        'sender': event.title,
-        'message': event.text
+        'address': event.title,
+        'message': event.text,
+        'date': event.createAt.toString().substring(0, 19)
       };
       String jsonBody = json.encode(body);
 
-      debugPrint('This is body : ${jsonBody}');
-
-      //await http.post(Uri.parse('http://139.59.126.33:9999/transaction/sms'),
-      await http.post(Uri.parse('http://192.168.0.192:9999/transaction/line'),
+      await http.post(Uri.parse('http://192.168.0.99:9999/transaction/line'),
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
           },
