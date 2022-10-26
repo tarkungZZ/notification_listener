@@ -87,8 +87,8 @@ class _NotificationsLogState extends State<NotificationsLog> {
       //debugPrint('Running on ${androidInfo.model}');
 
       Map<String, dynamic> body = {
-        'bid': '1',
-        'web': 'sbo',
+        'bid': '0',
+        'web': 'ufa',
         'deviceID': androidInfo.model,
         'address': event.title,
         'message': event.text,
@@ -96,7 +96,7 @@ class _NotificationsLogState extends State<NotificationsLog> {
       };
       String jsonBody = json.encode(body);
 
-      await http.post(Uri.parse('http://192.168.0.99:9999/line/line'),
+      await http.post(Uri.parse('http://192.168.1.99:9999/line/line'),
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
           },
@@ -153,7 +153,7 @@ class _NotificationsLogState extends State<NotificationsLog> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('LINE Message Retriever 01.'),
+        title: Text('LINE UFA BID 0'),
         actions: [
           IconButton(
               onPressed: () {

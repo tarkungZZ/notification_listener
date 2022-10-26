@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
    <application
-        android:label="LINE Message Retriever 01"
+        android:label="LINE UFA BID 0"
         android:icon="@mipmap/ic_launcher"
        android:allowBackup="true">
         <activity
