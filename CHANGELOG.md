@@ -1,3 +1,11 @@
+## 1.3.4
+
+- chore: support gradle plugin version
+
+## 1.3.3
+
+- bugfix: fix NullPointerException sometimes thrown by label field
+
 ## 1.3.2
 
 - bugfix: with some kotlin version build error (asserts-null)
